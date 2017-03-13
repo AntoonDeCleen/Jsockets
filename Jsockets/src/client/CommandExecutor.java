@@ -29,7 +29,10 @@ public class CommandExecutor{
 		}
 		
 		switch(command){
-		case GET: 
+		case GET:
+			
+			
+			
 			System.out.println("Resource to get: ");
 			Scanner sc	= new Scanner(System.in);
 			String resource = sc.nextLine();
