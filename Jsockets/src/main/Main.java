@@ -1,24 +1,29 @@
 package main;
 
-
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import client.Command;
+import client.CommandExecutor;
 
 public class Main {
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args ) throws Exception{
+		int sockNumber = 80;
+		if (args.length < 2){
+			System.out.println("Invalid number of arguments");
+			return;
+		}
+		
+		if (args.length != 2){
+			sockNumber = Integer.parseInt(args[2]);
+		}
 		
 		Command command = Command.valueOf(args[0]);
 		String URI = args[1];
-		int sockNumber = Integer.parseInt(args[2]);
+
 		
 		System.out.println("command: "+command);
 		System.out.println("URI: "+ URI);
-		System.out.println("sockNumber: "+ sockNumber);
+		System.out.println("portNumber: "+ sockNumber);
 
-		Socket socket = new Socket(URI, sockNumber);
+		CommandExecutor ce = new CommandExecutor(command, URI, sockNumber);
 
 		
 
