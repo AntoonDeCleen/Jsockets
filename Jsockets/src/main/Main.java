@@ -5,18 +5,28 @@ import client.CommandExecutor;
 
 public class Main {
 	public static void main(String[] args ) throws Exception{
+		Command command;
+		String URI;
 		int sockNumber = 80;
-		if (args.length < 2){
-			System.out.println("Invalid number of arguments");
-			return;
+		
+		if (args.length == 0){
+			command = Command.HEAD;
+			URI = "www.google.com";
 		}
 		
-		if (args.length != 2){
-			sockNumber = Integer.parseInt(args[2]);
+		else{
+			if (args.length < 2){
+				System.out.println("Invalid number of arguments");
+				return;
+			}
+			
+			if (args.length != 2){
+				sockNumber = Integer.parseInt(args[2]);
+			}
+			
+			command = Command.valueOf(args[0]);
+			URI = args[1];
 		}
-		
-		Command command = Command.valueOf(args[0]);
-		String URI = args[1];
 
 		
 		System.out.println("command: "+command);

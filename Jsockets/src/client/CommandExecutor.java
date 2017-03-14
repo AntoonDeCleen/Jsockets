@@ -15,7 +15,10 @@ public class CommandExecutor{
 	PrintWriter socket_out;
     BufferedReader socket_in;
     int nullcount = 0;
-	public CommandExecutor(Command command, String URI, int sockNumber) throws IOException{
+    String line;
+    FileCreator filecreator;
+    
+	public CommandExecutor(Command command, String URI, int sockNumber) throws IOException, InterruptedException{
 		this.command = command;
 		try {
 			this.socket = new Socket(URI, sockNumber);
@@ -35,21 +38,22 @@ public class CommandExecutor{
 			
 			System.out.println("Resource to get: ");
 			Scanner sc	= new Scanner(System.in);
-			String resource = sc.nextLine();
 			
+			String resource;
+			//resource = sc.nextLine();
+			//resource = "index.html";
+			resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
 			 socket_out.println("GET /"+resource+" HTTP/1.1\r\n\r\n");
 			 
-			 for (String line = socket_in.readLine(); nullcount != 2; line = socket_in.readLine()) {
-				 if (nullcount == 2){
-					 break;
-				 }
-				 if (line.length() == 0){
-					 nullcount += 1;
-				 }
-			        System.out.println(line);
-			 }
-			 socket.close();
-			 System.exit(0);
+			 filecreator = new FileCreator(URI, resource, socket_in);
+//			 line = socket_in.readLine();
+//			 for (line = socket_in.readLine(); nullcount != 1; line = socket_in.readLine()) {
+//			        System.out.println(line);
+//			        if (!socket_in.ready()){
+//			        	break;
+//			        }
+//			 }
+
 		;
 		case HEAD: 			
 			System.out.println("Resource to get: ");
@@ -59,9 +63,15 @@ public class CommandExecutor{
 
 			socket_out.println("HEAD / HTTP/1.1\r\n\r\n");
 
-			for (String line = socket_in.readLine(); line.length() != 0; line = socket_in.readLine()) {
-				System.out.println(line);
-			}
+			line = socket_in.readLine();
+			 for (line = socket_in.readLine(); nullcount != 1; line = socket_in.readLine()) {
+			        System.out.println(line);
+			        if (!socket_in.ready()){
+			        	break;
+			        }
+			 }
+			 socket.close();
+			 System.exit(0);
 			socket.close();
 			System.exit(0);
 		;
