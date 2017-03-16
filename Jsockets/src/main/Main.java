@@ -11,7 +11,7 @@ public class Main {
 		
 		if (args.length == 0){
 			command = Command.GET;
-			URI = "www.jmarshall.com";
+			URI = "www.google.com";
 		}
 		
 		else{
