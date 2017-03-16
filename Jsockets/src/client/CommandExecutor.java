@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-import java.util.Timer;
+
 
 public class CommandExecutor{
 	Command command;
@@ -40,10 +40,12 @@ public class CommandExecutor{
 			Scanner sc	= new Scanner(System.in);
 			
 			String resource;
-			//resource = sc.nextLine();
+			resource = sc.nextLine();
 			//resource = "index.html";
-			resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
-			 socket_out.println("GET /"+resource+" HTTP/1.1\r\n\r\n");
+			//resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
+			 socket_out.println("GET /"+resource+" HTTP/1.1");
+			 socket_out.println("Host: "+URI);
+			 socket_out.println("");
 			 
 			 filecreator = new FileCreator(URI, resource, socket_in);
 //			 line = socket_in.readLine();
@@ -61,7 +63,9 @@ public class CommandExecutor{
 			//String resource = sc.nextLine();
 			//System.out.println(resource);
 
-			socket_out.println("HEAD / HTTP/1.1\r\n\r\n");
+			 socket_out.println("GET / HTTP/1.1");
+			 socket_out.println("Host: "+URI);
+			 socket_out.println("");
 
 			line = socket_in.readLine();
 			 for (line = socket_in.readLine(); nullcount != 1; line = socket_in.readLine()) {

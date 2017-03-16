@@ -10,8 +10,8 @@ public class Main {
 		int sockNumber = 80;
 		
 		if (args.length == 0){
-			command = Command.HEAD;
-			URI = "www.google.com";
+			command = Command.GET;
+			URI = "www.jmarshall.com";
 		}
 		
 		else{
