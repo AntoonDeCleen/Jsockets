@@ -1,5 +1,7 @@
 package main;
 
+import java.io.PrintWriter;
+
 import client.Command;
 import client.CommandExecutor;
 
@@ -10,7 +12,7 @@ public class Main {
 		int sockNumber = 80;
 		
 		if (args.length == 0){
-			command = Command.GET;
+			command = Command.POST;
 			URI = "www.google.com";
 		}
 		
@@ -28,7 +30,6 @@ public class Main {
 			URI = args[1];
 		}
 
-		
 		System.out.println("command: "+command);
 		System.out.println("URI: "+ URI);
 		System.out.println("portNumber: "+ sockNumber);
