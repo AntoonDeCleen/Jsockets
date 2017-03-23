@@ -1,21 +1,15 @@
 package client;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 public class CommandExecutor{
@@ -27,9 +21,17 @@ public class CommandExecutor{
     String line;
     HTMLFileWriter filecreator;
     String path;
+    String resource = null;
     
 	public CommandExecutor(Command command, String URI, int sockNumber) throws IOException, InterruptedException{
 		this.command = command;
+		if (URI.contains("/")){
+			int splitindex = URI.indexOf("/");
+			resource = URI.substring(splitindex, URI.length());
+			URI = URI.substring(0, splitindex);
+			System.out.println("new URI: "+ URI);
+			System.out.println("resource found: "+resource );
+		}
 		try {
 			this.socket = new Socket(URI, sockNumber);
 			//writer for socket
@@ -43,78 +45,33 @@ public class CommandExecutor{
 		
 		switch(command){
 		case GET:
-			
-			
-			
-			//System.out.println("Resource to get: ");
-			//Scanner sc	= new Scanner(System.in);
-			
-			String resource;
-			//resource = sc.nextLine();
-			//resource = "index.html";
-			resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
+		
+			if (resource == null){
+				resource = "index.html";
+			}
+			//resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
 			 socket_out.println("GET /"+resource+" HTTP/1.1");
 			 socket_out.println("Host: "+URI);
 			 socket_out.println("");
+			
 			 
 			 filecreator = new HTMLFileWriter(URI, resource, socket_in);
-			 ArrayList<String> imagesToGet = filecreator.createFile();
-			 System.out.println(imagesToGet.size());
-			 for (String s:imagesToGet){
-				 //socket_out.println("GET /"+s+" HTTP/1.1");
-				 //socket_out.println("Host: "+URI);
-				 //socket_out.println("");
-				 
-				 socket_out.println("GET /"+"/images/branding/googlelogo/1x/googlelogo_white_background_color_272x92dp.png"+" HTTP/1.1");
-				 socket_out.println("Host: "+"www.google.com");
+			 filecreator.createFile();
+			 while (!filecreator.succes()){
+				 System.out.println("Request failed, retrying in 1 second");
+				 TimeUnit.SECONDS.sleep(1);
+				 socket_out.println("GET /"+resource+" HTTP/1.1");
+				 socket_out.println("Host: "+URI);
 				 socket_out.println("");
-				 path = "C:\\Users\\Beheerder\\Desktop\\ClientResources\\test.png";
-				 File f = new File(path);
-				 FileOutputStream foutStream = new FileOutputStream(path);
-				 byte[] mybytearray = new byte[1024];
-
-				 InputStream in = socket.getInputStream();
-//	            int count;
-//	            
-//	            InputStream is = socket.getInputStream();
-//	            try{
-//	            while ((count = is.read(mybytearray)) > 0) {
-//	                foutStream.write(mybytearray, 0, mybytearray.length);
-//	                System.out.println(mybytearray);
-//	                System.out.println(count);
-//	            }
-//	            }finally{
-//	            	System.out.println("finally");
-//	            	foutStream.close();
-//	            	socket.close();
-//	            }
-	            
-	            int count;
-	            byte[] buffer = new byte[8192]; // or 4096, or more
-	            while ((count = in.read(buffer)) > 0)
-	            {
-	            	
-	              foutStream.write(buffer, 0, count);
-	            }
-	            foutStream.close();
-	            in.close();
-	            socket.close();
-	
-				// foutStream.write(socket_in.read());
-				 System.out.println("x");
-				// foutStream.flush();
+				 filecreator.createFile();
 			 }
-			 System.out.println("x2");
 			 System.exit(0);
 
 		;
 		case HEAD: 			
-			System.out.println("Resource to get: ");
-			//Scanner sc	= new Scanner(System.in);
-			//String resource = sc.nextLine();
-			//System.out.println(resource);
 
-			 socket_out.println("GET / HTTP/1.1");
+
+			 socket_out.println("HEAD / HTTP/1.1");
 			 socket_out.println("Host: "+URI);
 			 socket_out.println("");
 
@@ -134,28 +91,61 @@ public class CommandExecutor{
 		case POST:
 			
 			path = "C:\\Users\\Beheerder\\Desktop\\ClientResources\\posttest.html";
-			
-			BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
-			String params = URLEncoder.encode("param1", "UTF-8")
-					+ "=" + URLEncoder.encode("value1", "UTF-8");					            
-			
 
+			File postfile = new File(path);
 			
 			
-		    wr.write("POST " + path + " HTTP/1.1\r\n");
-		    wr.write("Content-Length: " + params.length() + "\r\n");
-		    wr.write("Content-Type: application/x-www-form-urlencoded\r\n");
-		    wr.write("\r\n");
+							            
 			
-		    wr.write(params);
-		    wr.flush();
-
+			
+			 socket_out.println("POST /"+resource+" HTTP/1.1");
+			 socket_out.println("Host: "+URI);
+			 socket_out.println("Content-Length: " + postfile.length() + "\r\n");
+			 socket_out.println("Content-Type: text/html");
+			 socket_out.println("Date: "+new Date().toString());
+			 
+			 
+			 FileInputStream fin = new FileInputStream(postfile);
+			 
+			 PrintWriter pw =new PrintWriter(socket.getOutputStream(), true);
+			 BufferedReader reader = new BufferedReader(new InputStreamReader(fin, "utf-8"));
+			 long sentLength = 1;
+			 long totalLength = postfile.length();
+			 String fileLine;
+			 
+		 
 		    BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		    String line;
 		    while ((line = rd.readLine()) != null) {
 		      System.out.println(line);
 		    }
-		    wr.close();
+		 
+			 while(sentLength < totalLength){
+				 
+				 fileLine = reader.readLine();
+				 
+				 if (fileLine == null){
+					 System.out.println("ending filetransfer");
+					 pw.println("\r\n");
+					 pw.close();
+					 socket.close();
+					 return;
+				 }
+				 
+				 System.out.println("filelinelength: "+fileLine.length());
+				 sentLength += fileLine.length();
+				 //System.out.println(sentLength);
+				 //System.out.println(fileLine);
+				 pw.println(fileLine);
+				 pw.flush();
+			 
+			 }
+			 
+			 
+			 
+			 
+
+		    pw.close();
 		    rd.close();
 			
 			;

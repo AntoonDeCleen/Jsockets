@@ -1,4 +1,4 @@
-package main;
+	package main;
 
 import java.io.PrintWriter;
 
@@ -13,7 +13,7 @@ public class Main {
 		
 		if (args.length == 0){
 			command = Command.POST;
-			URI = "www.google.com";
+			URI = "posttestserver.com/post.php";
 		}
 		
 		else{

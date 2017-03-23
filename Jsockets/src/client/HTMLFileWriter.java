@@ -6,12 +6,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;;
+import java.util.concurrent.TimeUnit;
+
 
 
 public class HTMLFileWriter {
@@ -19,40 +16,70 @@ public class HTMLFileWriter {
 	BufferedReader socket_in;
 	boolean ready;
 	String line;
-	int nullcount;
 	BufferedWriter writer;
-	ArrayList<String> imagesToFetch = new ArrayList<String>();
-
+	boolean headerDone = false;
+	private long contentLength = 0;
+	private boolean fileSucces = false;
 	
-	public HTMLFileWriter(String URI, String resource, BufferedReader socket_in) throws IOException{
+	
+	public HTMLFileWriter(String URI, String resource, BufferedReader socket_in) throws IOException, InterruptedException{
+		
 		this.resource = resource;
 		this.socket_in = socket_in;
-		String path = "C:/Users/Beheerder/Desktop/ClientResources/"+"filesname"+".html";
+		String path = "C:/Users/Beheerder/Desktop/ClientResources/"+resource;
+		if (!path.endsWith(".html")){
+			if (path.contains(".html")){
+				int breakindex = path.indexOf(".html");
+				path = path.substring(0, breakindex+5);	
+				
+			}
+		}
 		File file = new File(path);
 		//String path = "/home/r0464173/Desktop/CNresources/"+resource+".html";
 	    writer = new BufferedWriter(new OutputStreamWriter(
 	          new FileOutputStream(path), "utf-8"));
+
 	}
 	
-	public ArrayList<String> createFile() throws IOException{
+	public void createFile() throws IOException, InterruptedException{
 	
-	 line = socket_in.readLine();
-	 for (line = socket_in.readLine(); nullcount != 1; line = socket_in.readLine()) {
-		 //System.out.println(line);
-		  // writer.write(line);	
-		 	Document doc =  Jsoup.parse(line);
-		 	Element image = doc.select("img").first();
+
+	 while (true) {
+		 if(!socket_in.ready()){
+			 TimeUnit.SECONDS.sleep(1);
+		 }
+		 line = socket_in.readLine();
+
+		 System.out.println(line);
 		 
-		 	if (image != null){
-		 		imagesToFetch.add(image.attr("src").toString());
-		 		System.out.println(image.attr("src").toString());
-		 	}
+		   if(headerDone){
+			   
+			   //every line read should be written on a new line in the file
+			   writer.write(line);
+			   writer.newLine();
+			   writer.flush();
+			   contentLength += line.length();
+		   }else{
+			   if(line.contains("Content-Length:")){
+				   String templine = line.replace("Content-Length: ", "");
+				   contentLength = Long.valueOf(templine).longValue();
+				   //System.out.println("length: "+contentLength);
+			   }
+			   if (line.length() == 0){
+				   headerDone = true;
+			   	 }
+			   }
 	       if (!socket_in.ready()){
+	    	   if (contentLength != 0){
+	    		   fileSucces = true;
+	    	   }
 	        	break;
 	       }
-	 }
-	 return imagesToFetch;
+	 	}
 	}
 	
+	public boolean succes(){
+		return this.fileSucces;
+	}
 	
 }
