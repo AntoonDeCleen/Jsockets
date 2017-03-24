@@ -19,6 +19,7 @@ public class HTMLFileWriter {
 	boolean headerDone = false;
 	private long contentLength = 0;
 	private boolean fileSucces = false;
+	File file;
 	
 	
 	public HTMLFileWriter(String URI, String resource, BufferedReader socket_in) throws IOException, InterruptedException{
@@ -27,16 +28,17 @@ public class HTMLFileWriter {
 		this.socket_in = socket_in;
 		//String path = "C:/Users/Beheerder/Desktop/ClientResources/"+resource;
 		String path = "/home/r0464173/Desktop/CNresources/"+resource;
+		
+		//avoids unnecessarily long file names
 		if (!path.endsWith(".html")){
 			if (path.contains(".html")){
 				int breakindex = path.indexOf(".html");
 				path = path.substring(0, breakindex+5);	
-				
 			}
 		}
-		File file = new File(path);
+		this.file =new File(path);
 		writer = new BufferedWriter(new OutputStreamWriter(
-	          new FileOutputStream(path), "utf-8"));
+	          new FileOutputStream(file), "utf-8"));
 
 	}
 	
@@ -51,6 +53,7 @@ public class HTMLFileWriter {
 
 		 System.out.println(line);
 		 if (line.contains("404")){
+			 file.delete();
 			 System.exit(0);
 		 }
 		 
