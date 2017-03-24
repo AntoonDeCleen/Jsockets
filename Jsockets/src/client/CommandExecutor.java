@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
 
 
 public class CommandExecutor{
@@ -22,6 +25,8 @@ public class CommandExecutor{
     HTMLFileWriter filecreator;
     String path;
     String resource = null;
+    Scanner sc = new Scanner(System.in);
+    
     
 	public CommandExecutor(Command command, String URI, int sockNumber) throws IOException, InterruptedException{
 		this.command = command;
@@ -69,85 +74,112 @@ public class CommandExecutor{
 
 		;
 		case HEAD: 			
-
-
-			 socket_out.println("HEAD / HTTP/1.1");
+			if (resource == null){
+				resource = "index.html";
+			}
+			
+			 socket_out.println("HEAD /"+resource+" HTTP/1.1");
 			 socket_out.println("Host: "+URI);
 			 socket_out.println("");
 
+			 
+			TimeUnit.SECONDS.sleep(1);
 			line = socket_in.readLine();
-			 for (line = socket_in.readLine(); nullcount != 1; line = socket_in.readLine()) {
-			        System.out.println(line);
+			while(socket_in.ready()) {
+				System.out.println(line);
+			    	line = socket_in.readLine();
 			        if (!socket_in.ready()){
 			        	break;
 			        }
 			 }
+			System.out.println("ending");
 			 socket.close();
 			 System.exit(0);
-			socket.close();
-			System.exit(0);
 		;
-		case PUT:;
-		case POST:
+		case PUT:			
+			System.out.println("Name of the putkey: ");
 			
-			path = "C:\\Users\\Beheerder\\Desktop\\ClientResources\\posttest.html";
-
-			File postfile = new File(path);
+			String putkey1 = sc.nextLine();
+			System.out.println("Name of the putvalue: ");
+			String putval1 = sc.nextLine();
+			if(resource == null){
+				resource = "";
+			}
 			
-			
-							            
-			
-			
+			String putdata = URLEncoder.encode(putkey1, "UTF-8") + "=" + URLEncoder.encode(putval1, "UTF-8");
+			TimeUnit.SECONDS.sleep(1);
+			//Sending request
+			System.out.println("Putting to URI: "+URI);
+			System.out.println("At location: "+resource);
 			 socket_out.println("POST /"+resource+" HTTP/1.1");
 			 socket_out.println("Host: "+URI);
-			 socket_out.println("Content-Length: " + postfile.length() + "\r\n");
-			 socket_out.println("Content-Type: text/html");
+			 socket_out.println("Content-Type: application/x-www-form-urlencoded");
 			 socket_out.println("Date: "+new Date().toString());
-			 
-			 
-			 FileInputStream fin = new FileInputStream(postfile);
-			 
-			 PrintWriter pw =new PrintWriter(socket.getOutputStream(), true);
-			 BufferedReader reader = new BufferedReader(new InputStreamReader(fin, "utf-8"));
-			 long sentLength = 1;
-			 long totalLength = postfile.length();
-			 String fileLine;
-			 
-		 
-		    BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		    String line;
-		    while ((line = rd.readLine()) != null) {
-		      System.out.println(line);
-		    }
-		 
-			 while(sentLength < totalLength){
-				 
-				 fileLine = reader.readLine();
-				 
-				 if (fileLine == null){
-					 System.out.println("ending filetransfer");
-					 pw.println("\r\n");
-					 pw.close();
-					 socket.close();
-					 return;
-				 }
-				 
-				 System.out.println("filelinelength: "+fileLine.length());
-				 sentLength += fileLine.length();
-				 //System.out.println(sentLength);
-				 //System.out.println(fileLine);
-				 pw.println(fileLine);
-				 pw.flush();
-			 
-			 }
-			 
-			 
-			 
-			 
-
-		    pw.close();
-		    rd.close();
+			 socket_out.println("Content-Length: " + putdata.length());
+			 socket_out.println("\r\n");
+			 socket_out.println(putdata);
+			 socket_out.flush();
 			
+			
+			 //reading server response
+			String line;
+		    System.out.println(socket_in.ready());
+		    line = socket_in.readLine();
+		    System.out.println(line);
+		    while (socket_in.ready()) {
+		      line = socket_in.readLine();
+		      System.out.println(line);
+		      if (!socket_in.ready()){
+		    	  break;
+		      }
+		    }
+		    
+		    socket_out.close();
+		    socket_in.close();
+			socket.close();
+			
+			;
+		case POST:
+			
+			System.out.println("Name of the postkey: ");
+			String postkey1 = sc.nextLine();
+			System.out.println("Name of the postvalue: ");
+			String postval1 = sc.nextLine();
+			if(resource == null){
+				resource = "";
+			}
+			
+			String postdata = URLEncoder.encode(postkey1, "UTF-8") + "=" + URLEncoder.encode(postval1, "UTF-8");
+			TimeUnit.SECONDS.sleep(1);
+			//Sending request
+			System.out.println("Posting to URI: "+URI);
+			System.out.println("At location: "+resource);
+			 socket_out.println("POST /"+resource+" HTTP/1.1");
+			 socket_out.println("Host: "+URI);
+			 socket_out.println("Content-Type: application/x-www-form-urlencoded");
+			 socket_out.println("Date: "+new Date().toString());
+			 socket_out.println("Content-Length: " + postdata.length());
+			 socket_out.println("\r\n");
+			 socket_out.println(postdata);
+			 socket_out.flush();
+			
+			
+			 //reading server response
+		    
+		    System.out.println(socket_in.ready());
+		    line = socket_in.readLine();
+		    System.out.println(line);
+		    while (socket_in.ready()) {
+		      line = socket_in.readLine();
+		      System.out.println(line);
+		      if (!socket_in.ready()){
+		    	  break;
+		      }
+		    }
+		    
+		    socket_out.close();
+		    socket_in.close();
+			socket.close();
 			;
 		}
 		
