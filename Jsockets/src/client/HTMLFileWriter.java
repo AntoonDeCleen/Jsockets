@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-
 import java.util.concurrent.TimeUnit;
 
 
@@ -26,7 +25,8 @@ public class HTMLFileWriter {
 		
 		this.resource = resource;
 		this.socket_in = socket_in;
-		String path = "C:/Users/Beheerder/Desktop/ClientResources/"+resource;
+		//String path = "C:/Users/Beheerder/Desktop/ClientResources/"+resource;
+		String path = "/home/r0464173/Desktop/CNresources/"+resource;
 		if (!path.endsWith(".html")){
 			if (path.contains(".html")){
 				int breakindex = path.indexOf(".html");
@@ -35,8 +35,7 @@ public class HTMLFileWriter {
 			}
 		}
 		File file = new File(path);
-		//String path = "/home/r0464173/Desktop/CNresources/"+resource+".html";
-	    writer = new BufferedWriter(new OutputStreamWriter(
+		writer = new BufferedWriter(new OutputStreamWriter(
 	          new FileOutputStream(path), "utf-8"));
 
 	}
@@ -51,6 +50,9 @@ public class HTMLFileWriter {
 		 line = socket_in.readLine();
 
 		 System.out.println(line);
+		 if (line.contains("404")){
+			 System.exit(0);
+		 }
 		 
 		   if(headerDone){
 			   

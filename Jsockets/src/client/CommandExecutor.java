@@ -54,7 +54,6 @@ public class CommandExecutor{
 			if (resource == null){
 				resource = "index.html";
 			}
-			//resource = "index.html?gfe_rd=cr&amp;ei=OuXHWLyLGoTc8AfJuoXABg";
 			 socket_out.println("GET /"+resource+" HTTP/1.1");
 			 socket_out.println("Host: "+URI);
 			 socket_out.println("");
@@ -85,6 +84,10 @@ public class CommandExecutor{
 			 
 			TimeUnit.SECONDS.sleep(1);
 			line = socket_in.readLine();
+			if (line.contains("404")){
+				System.out.println(line);
+				System.exit(0);
+			}
 			while(socket_in.ready()) {
 				System.out.println(line);
 			    	line = socket_in.readLine();
@@ -111,7 +114,7 @@ public class CommandExecutor{
 			//Sending request
 			System.out.println("Putting to URI: "+URI);
 			System.out.println("At location: "+resource);
-			 socket_out.println("POST /"+resource+" HTTP/1.1");
+			 socket_out.println("PUT /"+resource+" HTTP/1.1");
 			 socket_out.println("Host: "+URI);
 			 socket_out.println("Content-Type: application/x-www-form-urlencoded");
 			 socket_out.println("Date: "+new Date().toString());
@@ -137,7 +140,7 @@ public class CommandExecutor{
 		    socket_out.close();
 		    socket_in.close();
 			socket.close();
-			
+			System.exit(0);
 			;
 		case POST:
 			
@@ -180,6 +183,7 @@ public class CommandExecutor{
 		    socket_out.close();
 		    socket_in.close();
 			socket.close();
+			System.exit(0);
 			;
 		}
 		
